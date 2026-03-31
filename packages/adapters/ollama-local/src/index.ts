@@ -3,6 +3,7 @@ export const label = "Ollama (local)";
 
 export const DEFAULT_OLLAMA_MODEL = "llama3.2";
 export const DEFAULT_OLLAMA_BASE_URL = "http://localhost:11434";
+export const DEFAULT_OLLAMA_TIMEOUT_SEC = 900;
 
 export const models = [
   { id: DEFAULT_OLLAMA_MODEL, label: "Llama 3.2" },
@@ -11,6 +12,7 @@ export const models = [
   { id: "deepseek-coder-v2", label: "DeepSeek Coder V2" },
   { id: "mistral", label: "Mistral" },
   { id: "phi4", label: "Phi 4" },
+  { id: "qwen3.5", label: "Qwen 3.5" },
   { id: "qwen2.5-coder", label: "Qwen 2.5 Coder" },
 ];
 
@@ -39,12 +41,13 @@ Core fields:
 - temperature (number, optional): sampling temperature (0.0–2.0). Uses model default when omitted.
 
 Operational fields:
-- timeoutSec (number, optional): run timeout in seconds. Defaults to 300 (5 minutes). Set 0 for no timeout.
+- timeoutSec (number, optional): run timeout in seconds. Defaults to 900 (15 minutes). Set 0 for no timeout.
 - graceSec (number, optional): kept for API compatibility; unused (no subprocess).
 
 Notes:
 - Ollama must be running before the agent executes: \`ollama serve\`
 - Pull models before first use: \`ollama pull llama3.2\`
+- Large local models can take over a minute per run, so the default timeout is intentionally higher than the CLI adapters.
 - Conversation history is stored in sessionParams and replayed across runs for context continuity.
 - This adapter calls the Ollama HTTP API directly (POST /api/chat), not via subprocess.
 - No API key is required for local Ollama.
