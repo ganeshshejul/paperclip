@@ -1,5 +1,9 @@
 import type { CreateConfigValues } from "@paperclipai/adapter-utils";
-import { DEFAULT_OLLAMA_BASE_URL, DEFAULT_OLLAMA_MODEL } from "../index.js";
+import {
+  DEFAULT_OLLAMA_BASE_URL,
+  DEFAULT_OLLAMA_MODEL,
+  DEFAULT_OLLAMA_TIMEOUT_SEC,
+} from "../index.js";
 
 export function buildOllamaLocalConfig(v: CreateConfigValues): Record<string, unknown> {
   const ext = v as unknown as Record<string, unknown>;
@@ -20,7 +24,7 @@ export function buildOllamaLocalConfig(v: CreateConfigValues): Record<string, un
   const temperature = typeof ext.temperature === "number" ? ext.temperature : NaN;
   if (!Number.isNaN(temperature) && Number.isFinite(temperature)) ac.temperature = temperature;
 
-  ac.timeoutSec = 300;
+  ac.timeoutSec = DEFAULT_OLLAMA_TIMEOUT_SEC;
   ac.graceSec = 15;
 
   return ac;

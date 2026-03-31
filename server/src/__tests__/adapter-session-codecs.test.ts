@@ -13,6 +13,7 @@ import {
   sessionCodec as opencodeSessionCodec,
   isOpenCodeUnknownSessionError,
 } from "@paperclipai/adapter-opencode-local/server";
+import { sessionCodec as ollamaSessionCodec } from "@paperclipai/adapter-ollama-local/server";
 
 describe("adapter session codecs", () => {
   it("normalizes claude session params with cwd", () => {
@@ -103,6 +104,30 @@ describe("adapter session codecs", () => {
       cwd: "/tmp/gemini",
     });
     expect(geminiSessionCodec.getDisplayId?.(serialized ?? null)).toBe("gemini-session-1");
+  });
+
+  it("normalizes ollama session params with message history", () => {
+    const parsed = ollamaSessionCodec.deserialize({
+      messages: [
+        { role: "user", content: "Tell me about Berlin." },
+        { role: "assistant", content: "Berlin is Germany's capital." },
+      ],
+    });
+    expect(parsed).toEqual({
+      messages: [
+        { role: "user", content: "Tell me about Berlin." },
+        { role: "assistant", content: "Berlin is Germany's capital." },
+      ],
+    });
+
+    const serialized = ollamaSessionCodec.serialize(parsed);
+    expect(serialized).toEqual({
+      messages: [
+        { role: "user", content: "Tell me about Berlin." },
+        { role: "assistant", content: "Berlin is Germany's capital." },
+      ],
+    });
+    expect(ollamaSessionCodec.getDisplayId?.(serialized ?? null)).toBe("1 prior turn");
   });
 });
 

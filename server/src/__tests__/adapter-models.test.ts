@@ -1,6 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { models as codexFallbackModels } from "@paperclipai/adapter-codex-local";
 import { models as cursorFallbackModels } from "@paperclipai/adapter-cursor-local";
+import { models as ollamaFallbackModels } from "@paperclipai/adapter-ollama-local";
 import { resetOpenCodeModelsCacheForTests } from "@paperclipai/adapter-opencode-local/server";
 import { listAdapterModels } from "../adapters/index.js";
 import { resetCodexModelsCacheForTests } from "../adapters/codex-models.js";
@@ -100,5 +101,30 @@ describe("adapter model listing", () => {
 
     const models = await listAdapterModels("opencode_local");
     expect(models).toEqual([]);
+  });
+
+  it("returns ollama fallback models when tag discovery fails", async () => {
+    vi.spyOn(globalThis, "fetch").mockRejectedValue(new Error("connect ECONNREFUSED"));
+
+    const models = await listAdapterModels("ollama_local");
+    expect(models).toEqual(ollamaFallbackModels);
+  });
+
+  it("loads ollama models dynamically from installed tags", async () => {
+    vi.spyOn(globalThis, "fetch").mockResolvedValue({
+      ok: true,
+      json: async () => ({
+        models: [
+          { name: "qwen3.5:latest" },
+          { name: "deepseek-coder-v2:16b" },
+        ],
+      }),
+    } as Response);
+
+    const models = await listAdapterModels("ollama_local");
+    expect(models).toEqual([
+      { id: "qwen3.5:latest", label: "qwen3.5" },
+      { id: "deepseek-coder-v2:16b", label: "deepseek-coder-v2 (16b)" },
+    ]);
   });
 });
